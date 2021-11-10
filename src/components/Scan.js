@@ -9,7 +9,8 @@ import { Icon } from "react-native-elements";
 export default function Scan(props){
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
-    
+    const {barCodeKey} = props;
+    console.log('component' + barCodeKey);
 
     const { width } = Dimensions.get('window');
 
@@ -42,7 +43,8 @@ export default function Scan(props){
 
     return(     
         <View style={styles.container}>
-            <BarCodeScanner
+            <BarCodeScanner 
+                key={barCodeKey}
                 onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
                 barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
                 style={StyleSheet.absoluteFillObject}       

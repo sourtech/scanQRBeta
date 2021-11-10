@@ -11,15 +11,26 @@ export default function ScanQR(props){
     const [camera, setCamera] = useState(false)
     const {navigation} = props;
     const isFocused = useIsFocused();
+
+    const [barCodeKey, setBarCodeKey] = useState();
+ 
     
 
     React.useEffect(
-      () => navigation.addListener('focus', () => setCamera(true) ),
+      () => navigation.addListener('focus', () => {
+            setBarCodeKey(Math.random());
+            setCamera(true);
+          }
+        ),
       []
     );
   
     React.useEffect(
-      () => navigation.addListener('blur', () => setCamera(false) ),
+      () => navigation.addListener('blur', () => {
+        setBarCodeKey(Math.random()) 
+        setCamera(false);
+        }
+      ),
       []
     );
     
@@ -38,13 +49,14 @@ export default function ScanQR(props){
     }
     */
 
-
+console.log(barCodeKey);
     
     return (
      
         
         <View style={styles.container}>
-          {camera && <Scan></Scan> }
+          
+          {camera && <Scan barCodeKey={barCodeKey}></Scan> }
         </View>
         
     );

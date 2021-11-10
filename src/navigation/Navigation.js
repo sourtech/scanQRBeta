@@ -1,4 +1,5 @@
-import Home from "../screens/ScanQR";
+//import Home from "../screens/ScanQR";
+
 import HomeStack from "./HomeStack";
 import { Icon } from "react-native-elements";
 import React from 'react';
@@ -32,8 +33,8 @@ export default function Navigation(){
                 tabBarShowLabel: false,
             })}        
         >
-            <Tab.Screen name="homestack" component={Home} options={{headerShown:false, unmountOnBlur: true}} />
-            <Tab.Screen name="search" component={Search} options={{title: 'CUIT', unmountOnBlur: true}} />            
+            <Tab.Screen name="homestack" component={HomeStack} options={{headerShown:false}} />
+            <Tab.Screen name="search" component={Search} options={{title: 'CUIT'}} />            
         </Tab.Navigator>
     )
 }
