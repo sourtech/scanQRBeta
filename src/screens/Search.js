@@ -1,55 +1,96 @@
-import {Button, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {FlatList, SafeAreaView, StyleSheet, View} from "react-native";
 import React, {useEffect, useState} from "react";
 
+import Card from '../components/Card';
+import CardAnonimo from '../components/CardAnonimo';
+import CardNotFound from '../components/CardNotFound';
+import CardUsed from '../components/CardUsed';
 import { SearchBar } from 'react-native-elements';
+import {searchCuit} from '../Api';
 
 export default function Search(){
-    const [search, setSearch] = useState("");
+  const [enteredValue, setEnteredValue] = useState('');
+  const [userData, setUserData] = useState([]);
+  
     useEffect(() => {
-        if (search) {
-          alert(search);
-        }
-      }, [search]);   
+      if (enteredValue.length>5) {        
+        searchCuit(enteredValue)
+        .then(response => {
+          setUserData(response);
+        }).catch(() => {
+          setUserData([]);
+        });
+      }else{
+        setUserData([]);
+      }
+    }, [enteredValue]);   
+
+    const handleInputValue = text => {
+      setEnteredValue(text.replace(/[^0-9]/g, ''));
+    };
+
+     
+    
+    const renderItem = ({ item }) => {
+      console.log(item)
+      if(item.status=='ok'){
+        return <Card userData={item} />
+      }else if(item.status=='ko'){
+        return <CardUsed userData={item} />
+      }else if(item.status=='anonima'){
+        return <CardAnonimo userData={item} />
+      }
+      
+    };
+    
+
+  
 
     return(
-        <View>
-            <SearchBar
+      <SafeAreaView style={styles.area}>
+        <View style={styles.container}>
+          <View style={{marginLeft:10, marginRight:10}}>
+            <SearchBar 
                 placeholder="Buscar por CUIT..."
-                onChangeText={(e) => setSearch(e)}
-                value={search}
+                onChangeText={(e) => handleInputValue(e)}
+                value={enteredValue}
                 keyboardType="numeric"
                 containerStyle={styles.searchBar}
                 maxLength={10}
+                inputStyle={{backgroundColor: 'white', paddingLeft:10}}
+                containerStyle={
+                  {
+                    backgroundColor: 'white',
+                    borderBottomColor: 'transparent',
+                    borderTopColor: 'transparent',
+                    borderRadius:50
+                  }
+                }
+                inputContainerStyle={{backgroundColor: 'white'}}                
             /> 
-            {/* <Text>Existen casos que el QR puede existir pero no tiene una persona relacionada</Text> */}
-            <View style={styles.containerList} >
-
-              <View style={[styles.card, styles.cardAccept]}>
-                  <Text style={[styles.cardName, styles.cardNameOK]}>Hernan Matias Roig</Text>
-                  <Text style={[styles.cardCuit, styles.cardCuitOK]}>2025638049</Text>
-                  <View style={styles.msnContent}> 
-                    <TouchableOpacity style={styles.btnOK} onPress={() => alert('Aceptada')} >
-                      <Text style={styles.btnOkText}>Aceptar</Text>
-                    </TouchableOpacity>                    
-                  </View>
-              </View>
-
-              <View style={[styles.card, styles.cardDenegate]}>
-                  <Text style={styles.cardName}>Hernan Matias Roig</Text>
-                  <Text style={styles.cardCuit}>2025638049</Text>
-                  <View style={styles.msnContent}> 
-                    <Text style={styles.msn}>Esta entrada ya fue usada </Text>  
-                    <Text style={styles.msn}>22/20/2010 18:30</Text>        
-                  </View>
-          
-              </View>
-           
-            </View>
+          </View>
+          <View style={styles.containerList} >
+            <FlatList
+              data={userData}
+              renderItem={renderItem}
+              ListEmptyComponent={<CardNotFound/>}
+              keyExtractor={item => item.id}
+            />
+          </View>            
         </View>
+        </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
+  area: {
+    flex: 1,
+    paddingTop:30,
+  },    
+  container: {
+    flex: 1,
+    paddingTop:20,
+  },  
     searchBar: {
       //marginBottom: 20,
     },
@@ -59,70 +100,5 @@ const styles = StyleSheet.create({
     containerList:{
       margin: 10,
     },
-    card:{
-      padding: 14,
-      paddingTop:30,
-      paddingBottom: 30,
-      borderRadius: 10,
-      width: '100%',
-      borderColor: '#000000',
-      marginTop:10,
-      marginBottom:20,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 5,
-      },
-      shadowOpacity: 0.34,
-      shadowRadius: 6.27,
-      
-      elevation: 10,      
-    },
-    cardAccept:{
-      backgroundColor: '#ffffff',
-      
-    },
-    cardDenegate:{
-      backgroundColor: '#F9627D',
-    },    
-    cardName:{
-      fontSize: 22,
-      color: '#ffffff',
-      marginBottom:5,
-      fontWeight:'bold',
-      textAlign: 'center'
-    },
-    cardNameOK:{
-      color: '#000000',
-    },    
-    cardCuit:{
-      fontSize: 20,
-      color: '#ffffff',
-      marginBottom:10,
-      textAlign: 'center'
-    },
-    cardCuitOK:{
-      color: '#000000',
-    },     
-    btnOK:{
-      borderRadius: 10,
-      backgroundColor: '#44DC8A',
-      height: 50,
-      width: '100%',
-      justifyContent: 'center'
-    },
-    btnOkText:{
-      color: '#ffffff',
-      fontSize: 20,
-      alignSelf: 'center'
-    },
-    msnContent:{
-      padding: 10,
-      alignItems:'center',
-    },     
-    msn:{
-      color: '#ffffff',
-      fontSize: 16,      
-      paddingBottom:5,
-    } 
+
   });

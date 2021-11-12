@@ -1,10 +1,10 @@
-//import Home from "../screens/ScanQR";
-
 import HomeStack from "./HomeStack";
 import { Icon } from "react-native-elements";
 import React from 'react';
 import Search from "../screens/Search";
 import { StyleSheet } from "react-native";
+import { color } from "react-native-elements/dist/helpers";
+import colors from '../constats/colors';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Tab = createBottomTabNavigator();
@@ -16,7 +16,7 @@ export default function Navigation(){
 
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ color }) => screenOptions(route, color),
-                tabBarActiveTintColor: "#5e5ce6",
+                tabBarActiveTintColor: colors.primary,
                 tabBarInactiveTintColor: "#707070",
                 tabBarStyle: { 
                     position: 'absolute',
@@ -24,7 +24,7 @@ export default function Navigation(){
                     left: 20,
                     right: 20,
                     elevation: 0,
-                    backgroundColor: '#15123b',
+                    backgroundColor: colors.accent,
                     borderRadius: 15,
                     height: 90,
                     ...style.shadow,
@@ -34,7 +34,7 @@ export default function Navigation(){
             })}        
         >
             <Tab.Screen name="homestack" component={HomeStack} options={{headerShown:false}} />
-            <Tab.Screen name="search" component={Search} options={{title: 'CUIT'}} />            
+            <Tab.Screen name="search" component={Search} options={{title: 'CUIT', headerShown:false}} />            
         </Tab.Navigator>
     )
 }

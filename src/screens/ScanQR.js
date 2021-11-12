@@ -1,91 +1,86 @@
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import Card from '../components/Card';
+import CardAnonimo from '../components/CardAnonimo';
+import CardNotFound from '../components/CardNotFound';
+import CardUsed from '../components/CardUsed';
+import MyModal from '../components/Modal';
 import Scan from '../components/Scan';
+import {searchQR} from '../Api';
 
-export default function ScanQR(props){
-  
-    
-    const [camera, setCamera] = useState(false)
+export default function ScanQR(props){    
+    const [modalVisible, setModalVisible] = useState(false);
+    const [scanned, setScanned] = useState(false);
+    const [renderComponent, setRenderComponent] = useState(null);
+    const [dataUser, setUserData] = useState([])
     const {navigation} = props;
-    const isFocused = useIsFocused();
 
-    const [barCodeKey, setBarCodeKey] = useState();
- 
-    
+    useEffect(() => {
+      handleCards();
+    }, [dataUser]);   
 
-    React.useEffect(
-      () => navigation.addListener('focus', () => {
-            setBarCodeKey(Math.random());
-            setCamera(true);
-          }
-        ),
-      []
-    );
-  
-    React.useEffect(
-      () => navigation.addListener('blur', () => {
-        setBarCodeKey(Math.random()) 
-        setCamera(false);
-        }
-      ),
-      []
-    );
-    
-  /*
-    if (isFocused){
-      setTimeout(() => { setCamera(true) },50);
-      console.log('Ahora camera es ' + camera);
-    }else{
-      setTimeout(() => { 
-        //setCamera(false);
-        return (<View></View>);
-        console.log("te fuiste");
-        console.log('Ahora camera es ' + camera);        
-      },50);
-      
+    const handleCards = () =>{
+      //setUserData(x);
+      switch (dataUser.status) {
+        case "ok":
+          setRenderComponent(
+            <Card userData={dataUser} />
+          );
+          setModalVisible(true);
+          break;
+        default:
+          setRenderComponent(null);
+          setModalVisible(false);
+          break;
+      }
     }
-    */
 
-console.log(barCodeKey);
-    
-    return (
-     
-        
-        <View style={styles.container}>
-          
-          {camera && <Scan barCodeKey={barCodeKey}></Scan> }
-        </View>
-        
+    const handleBarCodeScanned = ({ type, data }) => {
+      setScanned(true);
+      //setModalVisible(true);
+      //alert(`TIPO ${type} DATO ${data} a sido escaneado!`);
+      //const key = 'ok'
+
+      //FALTA VALIDAR EL TYPE
+      console.log(data);
+      searchQR(data)
+      .then(response => {
+        setUserData(response);
+        //handleCards(response);
+      }).catch(() => {
+        setUserData([]);
+      });      
+      //console.log(dataUser);
+
+      // con navigation podria mandarlo a la pagina que esta OK
+      //
+      // navigation.navigate("home")
+    };
+
+    return (           
+        <View style={styles.container}> 
+        {scanned && <View ><Button title={'Volver a escanear'} onPress={() => setScanned(false)} /></View>}         
+          <Scan 
+            navigation={navigation} 
+            scanned={scanned}
+            handleBarCodeScanned={handleBarCodeScanned}
+          />   
+          {renderComponent && (
+            <MyModal modalVisible={modalVisible} setModalVisible={setModalVisible}>
+              {renderComponent}
+            </MyModal>
+          )}          
+        </View>   
+             
     );
-
 }
 
 const styles = StyleSheet.create({
     container: {
       flex: 1,
       top: 0,
-     //flexDirection: 'column',
-      //justifyContent: 'center',
       backgroundColor:'#ffffff',
       
     },
-    contentBottom: {
-      flex: 1,
-      flexDirection:'row',
-      alignItems:'flex-end',
-      paddingLeft:20,
-      paddingRight:20,
-      paddingBottom:140,
-      justifyContent:'space-between',
-    },
-    btnCircle:{
-      height: 50,
-      width: 50,
-      borderRadius: 50,
-      backgroundColor:'#15123b',
-      justifyContent: 'center',
-    }
   });
